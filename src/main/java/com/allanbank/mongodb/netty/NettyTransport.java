@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,7 +41,7 @@ import com.allanbank.mongodb.client.transport.TransportResponseListener;
 /**
  * NettySocketConnection provides a channel representing the connection to the
  * server.
- * 
+ *
  * @copyright 2014-2015, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class NettyTransport implements Transport<NettyOutputBuffer>, Receiver {
@@ -54,7 +54,7 @@ public class NettyTransport implements Transport<NettyOutputBuffer>, Receiver {
 
     /**
      * Creates a new NettySocketConnection.
-     * 
+     *
      * @param server
      *            The MongoDB server to connect to.
      * @param config
@@ -67,7 +67,7 @@ public class NettyTransport implements Transport<NettyOutputBuffer>, Receiver {
      *            The listener for the status of the transport/connection.
      * @param bootstrap
      *            The seeded bootstrap for creating the {@link Channel}.
-     * 
+     *
      * @throws IOException
      *             On a failure connecting to the MongoDB server.
      */
@@ -133,12 +133,48 @@ public class NettyTransport implements Transport<NettyOutputBuffer>, Receiver {
     /**
      * {@inheritDoc}
      * <p>
+     * Overridden to use the channel's {@link ByteBufAllocator} to allocate a
+     * buffer of the specified size.
+     * </p>
+     */
+    @Override
+    public NettyOutputBuffer createSendBuffer(final int size) {
+        return new NettyOutputBuffer(myChannel.alloc().buffer(size),
+                myEncoderCache);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
      * Overridden to flush the Netty channel backing this connection.
      * </p>
      */
     @Override
     public void flush() throws IOException {
         myChannel.flush();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to write the buffer to the channel.
+     * </p>
+     */
+    @Override
+    public void send(final NettyOutputBuffer buffer) throws IOException,
+            InterruptedIOException {
+        myChannel.write(buffer.getBuffer());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to do nothing.
+     * </p>
+     */
+    @Override
+    public void start() {
+        // Nothing to do.
     }
 
     /**
@@ -169,41 +205,5 @@ public class NettyTransport implements Transport<NettyOutputBuffer>, Receiver {
         if (myChannel.eventLoop().inEventLoop()) {
             myChannel.read();
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to use the channel's {@link ByteBufAllocator} to allocate a
-     * buffer of the specified size.
-     * </p>
-     */
-    @Override
-    public NettyOutputBuffer createSendBuffer(int size) {
-        return new NettyOutputBuffer(myChannel.alloc().buffer(size),
-                myEncoderCache);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to write the buffer to the channel.
-     * </p>
-     */
-    @Override
-    public void send(NettyOutputBuffer buffer) throws IOException,
-            InterruptedIOException {
-        myChannel.write(buffer.getBuffer());
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to do nothing.
-     * </p>
-     */
-    @Override
-    public void start() {
-        // Nothing to do.
     }
 }

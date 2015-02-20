@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,39 +23,39 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
 import com.allanbank.mongodb.client.transport.TransportResponseListener;
-import com.allanbank.mongodb.error.MongoClientClosedException;
+import com.allanbank.mongodb.error.ConnectionLostException;
 
 /**
  * NettyCloseListener provides the listener for notification that the Netty
  * channel has closed.
- * 
+ *
  * @copyright 2015, Allanbank Consulting, Inc., All Rights Reserved
  */
 /* package */class NettyCloseListener implements
-		GenericFutureListener<Future<Void>> {
+        GenericFutureListener<Future<Void>> {
 
-	/** The listener for the connection closing. */
-	private final TransportResponseListener myResponseListener;
+    /** The listener for the connection closing. */
+    private final TransportResponseListener myResponseListener;
 
-	/**
-	 * Creates a new NettyCloseListener.
-	 * 
-	 * @param responseListener
-	 *            The listener for the connection closing.
-	 */
-	public NettyCloseListener(TransportResponseListener responseListener) {
-		myResponseListener = responseListener;
-	}
+    /**
+     * Creates a new NettyCloseListener.
+     *
+     * @param responseListener
+     *            The listener for the connection closing.
+     */
+    public NettyCloseListener(final TransportResponseListener responseListener) {
+        myResponseListener = responseListener;
+    }
 
-	/**
-	 * Notification that the Netty channel is closed.
-	 * 
-	 * @param future
-	 *            The close future - ignored.
-	 */
-	@Override
-	public void operationComplete(final Future<Void> future) throws Exception {
-		myResponseListener.closed(new MongoClientClosedException(
-				"Client connection has been closed."));
-	}
+    /**
+     * Notification that the Netty channel is closed.
+     *
+     * @param future
+     *            The close future - ignored.
+     */
+    @Override
+    public void operationComplete(final Future<Void> future) {
+        myResponseListener.closed(new ConnectionLostException(
+                "Client connection has been closed."));
+    }
 }

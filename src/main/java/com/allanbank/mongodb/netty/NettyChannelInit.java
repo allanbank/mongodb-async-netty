@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -46,7 +46,7 @@ import com.allanbank.mongodb.util.IOUtils;
 
 /**
  * NettyChannelInit provides a callback to initialize the socket channels.
- * 
+ *
  * @copyright 2015, Allanbank Consulting, Inc., All Rights Reserved
  */
 final class NettyChannelInit extends ChannelInitializer<SocketChannel> {
@@ -54,15 +54,15 @@ final class NettyChannelInit extends ChannelInitializer<SocketChannel> {
     /** The configuration for initializing the channel. */
     private final MongoClientConfiguration myClientConfig;
 
-    /** The listener for responses from the server. */
-    private final TransportResponseListener myResponseListener;
-
     /** The cache for decoding strings. */
     private final StringDecoderCache myDecoderCache;
 
+    /** The listener for responses from the server. */
+    private final TransportResponseListener myResponseListener;
+
     /**
      * Creates a new ChannelInit.
-     * 
+     *
      * @param config
      *            The {@link MongoClientConfiguration} to configure the client's
      *            socket.
@@ -72,7 +72,8 @@ final class NettyChannelInit extends ChannelInitializer<SocketChannel> {
      *            The listener for recieved messages and socket events.
      */
     protected NettyChannelInit(final MongoClientConfiguration config,
-            StringDecoderCache decoderCache, TransportResponseListener listener) {
+            final StringDecoderCache decoderCache,
+            final TransportResponseListener listener) {
         myClientConfig = config;
         myDecoderCache = decoderCache;
         myResponseListener = listener;
@@ -91,7 +92,7 @@ final class NettyChannelInit extends ChannelInitializer<SocketChannel> {
 
         // Make sure we know when the connection gets closed.
         ch.closeFuture()
-                .addListener(new NettyCloseListener(myResponseListener));
+        .addListener(new NettyCloseListener(myResponseListener));
 
         SSLEngine engine = null;
         final SocketFactory socketFactory = myClientConfig.getSocketFactory();
@@ -108,7 +109,7 @@ final class NettyChannelInit extends ChannelInitializer<SocketChannel> {
         if (engine != null) {
             engine.setUseClientMode(true);
 
-            SslHandler handler = new SslHandler(engine, false /* startTLS */);
+            final SslHandler handler = new SslHandler(engine, false /* startTLS */);
             pipeline.addLast("ssl", handler);
 
             if (socketFactory instanceof SocketConnectionListener) {
@@ -118,9 +119,6 @@ final class NettyChannelInit extends ChannelInitializer<SocketChannel> {
                                 engine, ch));
             }
         }
-
-        // Write side.
-        pipeline.addLast("messageToBufHandler", new MessagesToByteEncoder());
 
         // Read side.
         pipeline.addLast("readTimeoutHandler", new ReadTimeoutHandler(
@@ -135,7 +133,7 @@ final class NettyChannelInit extends ChannelInitializer<SocketChannel> {
      * Uses the {@link SSLSocketFactory} to create an {@link SSLSocket} that we
      * can then use the {@link SSLParameters} from to create and appropriately
      * configured {@link SSLEngine}.
-     * 
+     *
      * @param sslFactory
      *            The factory to create a {@link SSLEngine} from.
      * @return The {@link SSLEngine} created with the parameters from the
@@ -145,7 +143,7 @@ final class NettyChannelInit extends ChannelInitializer<SocketChannel> {
      * @throws NoSuchAlgorithmException
      *             On a failure to create an {@link SSLEngine}.
      */
-    private SSLEngine createVanillaEngine(SSLSocketFactory sslFactory)
+    private SSLEngine createVanillaEngine(final SSLSocketFactory sslFactory)
             throws IOException, NoSuchAlgorithmException {
 
         // Pull the user's parameters from a socket created by the
@@ -155,16 +153,17 @@ final class NettyChannelInit extends ChannelInitializer<SocketChannel> {
         try {
             socket = sslFactory.createSocket();
             if (socket instanceof SSLSocket) {
-                SSLParameters params = ((SSLSocket) socket).getSSLParameters();
+                final SSLParameters params = ((SSLSocket) socket)
+                        .getSSLParameters();
 
-                for (String protocol : params.getProtocols()) {
+                for (final String protocol : params.getProtocols()) {
                     SSLContext context;
                     try {
                         context = SSLContext.getInstance(protocol);
                         engine = context.createSSLEngine();
                         break;
                     }
-                    catch (NoSuchAlgorithmException e) {
+                    catch (final NoSuchAlgorithmException e) {
                         // Try the next protocol.
                     }
                 }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,16 +41,16 @@ import com.allanbank.mongodb.client.transport.TransportResponseListener;
 /**
  * NettyTransportFactory provides factory to create connections to MongoDB via
  * Netty {@link Channel channels}.
- * 
+ *
  * @copyright 2014-2014, Allanbank Consulting, Inc., All Rights Reserved
  */
 public class NettyTransportFactory implements TransportFactory {
 
-    /** The channel for the Connection to the server. */
-    private final EventLoopGroup myGroup;
-
     /** The {@link ByteBufAllocator} for the transport. */
     private final ByteBufAllocator myBufferAllocator;
+
+    /** The channel for the Connection to the server. */
+    private final EventLoopGroup myGroup;
 
     /**
      * Creates a new NettyTransportFactory.
@@ -61,15 +61,15 @@ public class NettyTransportFactory implements TransportFactory {
 
     /**
      * Creates a new NettyTransportFactory.
-     * 
+     *
      * @param group
      *            The client's configuration.
      * @param bufferAllocator
      *            The {@link ByteBufAllocator} to share across all connections
      *            created.
      */
-    public NettyTransportFactory(EventLoopGroup group,
-            ByteBufAllocator bufferAllocator) {
+    public NettyTransportFactory(final EventLoopGroup group,
+            final ByteBufAllocator bufferAllocator) {
         myGroup = group;
         myBufferAllocator = bufferAllocator;
     }
@@ -81,10 +81,12 @@ public class NettyTransportFactory implements TransportFactory {
      * </p>
      */
     @Override
-    public Transport<?> createTransport(Server server,
-            MongoClientConfiguration config, StringEncoderCache encoderCache,
-            StringDecoderCache decoderCache,
-            TransportResponseListener responseListener) throws IOException {
+    public Transport<?> createTransport(final Server server,
+            final MongoClientConfiguration config,
+            final StringEncoderCache encoderCache,
+            final StringDecoderCache decoderCache,
+            final TransportResponseListener responseListener)
+                    throws IOException {
 
         return new NettyTransport(server, config, encoderCache, decoderCache,
                 responseListener, createBootstrap(config));
@@ -93,12 +95,12 @@ public class NettyTransportFactory implements TransportFactory {
     /**
      * Creates a new {@link Bootstrap} for creating a Netty client
      * {@link Channel channels}.
-     * 
+     *
      * @param config
      *            The configuration for the client.
      * @return The {@link Bootstrap} to create Netty client channels.
      */
-    protected Bootstrap createBootstrap(MongoClientConfiguration config) {
+    protected Bootstrap createBootstrap(final MongoClientConfiguration config) {
         final Bootstrap bootstrap = new Bootstrap();
 
         bootstrap.channel(NioSocketChannel.class);
@@ -108,7 +110,7 @@ public class NettyTransportFactory implements TransportFactory {
         // Suggested defaults.
         bootstrap.option(ChannelOption.WRITE_BUFFER_HIGH_WATER_MARK, 32 * 1024);
         bootstrap.option(ChannelOption.WRITE_BUFFER_LOW_WATER_MARK, 8 * 1024);
-        
+
         // Settings from the config.
         bootstrap.option(ChannelOption.SO_KEEPALIVE,
                 Boolean.valueOf(config.isUsingSoKeepalive()));
